@@ -2,8 +2,10 @@ const express = require ('express');
 const router = express.Router();
 const { getDogs, updateDog, addDog, deleteDog } = require('../controllers/dogController')
 
-router.route('/').get(getDogs).post(addDog)
-router.route('/:id').put(updateDog).delete(deleteDog)
+const {protect} = require('../middleware/authMiddleware')
+
+router.route('/').get(protect, getDogs).post(protect, addDog)
+router.route('/:id').put(protect, updateDog).delete(protect, deleteDog)
 
 
 
