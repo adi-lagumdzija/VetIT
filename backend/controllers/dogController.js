@@ -2,11 +2,30 @@ const asyncHandler = require('express-async-handler')
 const Dogs = require ('../models/dogModel')
 const User = require ('../models/userModel')
 
+
+// @desc Get dog
+// @route GET /api/dogs
+// @access Private
+const getDog = asyncHandler (async (req, res) => {
+    const dog = await Dogs.findById(req.params.id)
+
+    if(!dog){
+        res.status(400)
+        throw new Error('Dog not found')
+    }
+    //checking user
+    if(!req.user){
+        res.status(401)
+        throw new Error('User not found')
+    }
+    res.status(200).json(dog)
+})
+
 // @desc Get dogs
 // @route GET /api/dogs
 // @access Private
 const getDogs = asyncHandler (async (req, res) => {
-    const dogs = await Dogs.find({user: req.user.id})
+    const dogs = await Dogs.find()
     res.status(200).json(dogs)
 })
 
@@ -39,15 +58,14 @@ const updateDog = asyncHandler (async (req, res) => {
         throw new Error('Dog not found')
     }
 
-    const user = await User.findById(req.user.id)
     //checking user
-    if(!user){
+    if(!req.user){
         res.status(401)
         throw new Error('User not found')
     }
 
     //checking that logged in matches the dog
-    if(dog.user.toString() !== user.id){
+    if(dog.user.toString() !== req.user.id){
         res.status(401)
         throw new Error('User not authorized')
     }
@@ -67,15 +85,16 @@ const deleteDog = asyncHandler (async (req, res) => {
         throw new Error('Dog not found')
     }
 
-    const user = await User.findById(req.user.id)
+
+
     //checking user
-    if(!user){
+    if(!req.user){
         res.status(401)
         throw new Error('User not found')
     }
 
     //checking that logged in matches the dog
-    if(dog.user.toString() !== user.id){
+    if(dog.user.toString() !== req.user.id){
         res.status(401)
         throw new Error('User not authorized')
     }
@@ -88,5 +107,6 @@ module.exports = {
     getDogs,
     addDog,
     updateDog,
-    deleteDog
+    deleteDog,
+    getDog,
 }
